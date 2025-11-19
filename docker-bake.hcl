@@ -11,11 +11,11 @@ variable "APP" {
 }
 
 variable "RELEASE" {
-    default = "3.5.0"
+    default = "3.5.1"
 }
 
 variable "RELEASE_SUFFIX" {
-    default = ".post1"
+    default = ""
 }
 
 variable "CU_VERSION" {
