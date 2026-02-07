@@ -35,10 +35,23 @@ curl https://rclone.org/install.sh | bash
 # Update rclone
 rclone selfupdate
 
-# Install runpodctl
-wget "https://github.com/runpod/runpodctl/releases/download/${RUNPODCTL_VERSION}/runpodctl-linux-amd64" -O runpodctl && \
-    chmod a+x runpodctl && \
-    mv runpodctl /usr/local/bin
+# Install runpodctl (robust download + validation)
+apt-get update && apt-get install -y --no-install-recommends ca-certificates curl file && rm -rf /var/lib/apt/lists/*
+
+RUNPODCTL_URL="https://github.com/runpod/runpodctl/releases/download/${RUNPODCTL_VERSION}/runpodctl-linux-amd64"
+OUT="/usr/local/bin/runpodctl"
+
+curl -fL --retry 5 --retry-delay 2 --retry-connrefused \
+  -A "Mozilla/5.0" \
+  -o "$OUT" \
+  "$RUNPODCTL_URL"
+
+# Ensure we downloaded a real binary (not "Access Denied" / HTML)
+test -s "$OUT"
+file "$OUT" | grep -qiE "ELF|executable"
+
+chmod +x "$OUT"
+"$OUT" --version || true
 
 # Install croc
 curl https://getcroc.schollz.com | bash
